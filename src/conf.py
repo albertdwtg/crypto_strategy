@@ -9,16 +9,16 @@ class Config:
     DATA_FOLDER: str = 'data'
     RELOAD: bool = False
     START_DATE: str = "01 january 2019"
-    REQUIRED_LIST: list[str] = field(default_factory=lambda: ["BTC", "ETH", "BNB", "XRP", "SOL", "ADA", "TRX", 
-                                                              "LINK", "AVAX", "DOT", "LTC", "MATIC"])
+    REQUIRED_LIST: list[str] = field(default_factory=lambda: ["BTC", "ETH", "BNB", "XRP", "SOL", "ADA", 
+                                                              "LINK", "AVAX", "DOT", "LTC"])
     THRESHOLD_NULL_COLUMNS: float = 0.5
     
     #-- Backtest params
-    INITIAL_USDT: float = 100.0
+    INITIAL_USDT: float = 1000.0
     MAKER_FEE: float = 0.0005
     TAKER_FEE: float = 0.0007
     STOP_LOSS_PCT: float = 0.02
-    TAKE_PROFIT_PCT: float = 0.2
+    TAKE_PROFIT_PCT: float = 0.1
     
     def __post_init__(self):
         self.historical_data = load_data(self.RELOAD,
