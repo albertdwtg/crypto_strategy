@@ -4,6 +4,7 @@ from typing import List
 
 @dataclass
 class Config:
+    #-- Data Collection
     COIN_PAIR: str = 'USDT'
     COIN_STATUS: str = 'TRADING'
     DATA_FOLDER: str = 'data'
@@ -20,6 +21,10 @@ class Config:
     TAKER_FEE: float = 0.0007
     STOP_LOSS_PCT: float = 0.02
     TAKE_PROFIT_PCT: float = 0.1
+    
+    #-- Dashboard
+    EXECUTE_DASHBOARD: bool = True
+    DASHBOARD_OUTPUT: str = "executed_dashboard.ipynb"
     
     def __post_init__(self):
         self.historical_data = load_data(self.RELOAD,

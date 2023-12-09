@@ -96,7 +96,6 @@ def run_backtest(historical_data: dict, coin_name: str, usdt: float,
         signals_value["previous_rsi"] = signals_value["current_rsi"]
 
     dt = pd.DataFrame(all_operations)
-    print(backtest_evaluation(dt, close_data[coin_name]))
     return backtest_evaluation(dt, close_data[coin_name])
 
 
@@ -182,6 +181,8 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series):
         "worst_drawback": 100 * round(dt['drawBack'].min(), 2),
         "detail": results
     }
+    data["win_rate"] = data["nb_positive_trades"]/(data["nb_negative_trades"] + data["nb_positive_trades"])*100
+    data["total_trades"] = data["nb_negative_trades"] + data["nb_positive_trades"]
     return data
 
 
