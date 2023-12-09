@@ -11,7 +11,16 @@ class Reason(Enum):
     SELL_MARKET = "SELL_MARKET"
 
 
-def init_signals_values(signals: dict, coin_name: str):
+def init_signals_values(signals: dict, coin_name: str) -> dict:
+    """Function that creates a dict of first values for signals
+
+    Args:
+        signals (dict): signals already computed
+        coin_name (str): name of the coin
+
+    Returns:
+        dict: current and previous values of a signal
+    """
     signals_values = {}
     for key, value in signals.items():
         signals_values["current_" + key.lower()] = value.iloc[0][coin_name]
@@ -22,7 +31,22 @@ def init_signals_values(signals: dict, coin_name: str):
 def run_backtest(historical_data: dict, coin_name: str, usdt: float,
                  stop_loss_pct: float, take_profit_pct: float,
                  taker_fee: float, maker_fee: float,
-                 signals: dict):
+                 signals: dict) -> dict:
+    """Function that runs a backtest on a single coin
+
+    Args:
+        historical_data (dict): historical market data
+        coin_name (str): name of the coin used
+        usdt (float): initial amount of money
+        stop_loss_pct (float): pct of loss before stop loss
+        take_profit_pct (float): pct of profit before take profit
+        taker_fee (float): fee when we buy coin
+        maker_fee (float): fee when we sell coin
+        signals (dict): all signals already computed
+
+    Returns:
+        dict: backtest evaluation
+    """
     rsi_signal = signals["rsi"]
     close_data = historical_data["Close"]
     close_data = close_data[close_data[coin_name].notnull()]
@@ -127,7 +151,27 @@ def compute_drawback(wallet: float, last_ath: float) -> float:
     return (wallet - last_ath) / last_ath
 
 
-def write_operation(date, coin_name, position, reason, price, fee, fiat, coins, wallet, last_ath, condition = None):
+def write_operation(date: str, coin_name: str, position: str, reason: str, price: str, 
+                    fee: float, fiat: float, coins: float, wallet: float, last_ath: float, 
+                    condition: str = None) -> dict:
+    """Write all informations about a transaction
+
+    Args:
+        date (str): date of the transaction
+        coin_name (str): name of the coin
+        position (str): BUY or SELL
+        reason (str): what is the reason of the position
+        price (str): coin price at the moment of the transaction
+        fee (float): fee during the transaction
+        fiat (float): total amount of money available
+        coins (float): total amount of coins available
+        wallet (float): sum of coins and fiat value
+        last_ath (float): last ath of the wallet
+        condition (str, optional): On a buy, the condition that triggers the trade. Defaults to None.
+
+    Returns:
+        dict: transaction infos
+    """
     row = {
         'date': date,
         'coin_name': coin_name,
@@ -144,7 +188,16 @@ def write_operation(date, coin_name, position, reason, price, fee, fiat, coins, 
     return row
 
 
-def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series):
+def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series) -> dict:
+    """Function that evaluates the performances of a backtest simulation
+
+    Args:
+        results (pd.DataFrame): results of the backtest
+        close_dataframe (pd.Series): dataframe of close prices
+
+    Returns:
+        dict: all infos about backtest simulation
+    """
     dt = results.copy()
     dt = dt.set_index(dt['date'])
     dt.index = pd.to_datetime(dt.index)
@@ -152,7 +205,6 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series):
     dt['resultat%'] = dt['wallet'].pct_change() * 100
     dt.loc[dt['position'] == 'Buy', 'resultat'] = None
     dt.loc[dt['position'] == 'Buy', 'resultat%'] = None
-
     dt['tradeIs'] = ''
     dt.loc[dt['resultat'] > 0, 'tradeIs'] = 'Good'
     dt.loc[dt['resultat'] <= 0, 'tradeIs'] = 'Bad'
@@ -171,7 +223,7 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series):
         "performance_buy_hold": round(hold_pct, 2),
         "algo_vs_hold": round(algo_vs_hold_pct, 2),
         "nb_negative_trades": dt.groupby('tradeIs')['date'].nunique()['Bad'],
-        "nb_positive_trades": dt.groupby('tradeIs')['date'].nunique()['Good'],
+        #"nb_positive_trades": dt.groupby('tradeIs')['date'].nunique()['Good'],
         "avg_pct_negative_trades": round(
             dt.loc[dt['tradeIs'] == 'Bad', 'resultat%'].sum() / dt.loc[dt['tradeIs'] == 'Bad', 'resultat%'].count(), 2),
         "avg_pct_positive_trades": round(
@@ -181,16 +233,32 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series):
         "worst_drawback": 100 * round(dt['drawBack'].min(), 2),
         "detail": results
     }
-    data["win_rate"] = data["nb_positive_trades"]/(data["nb_negative_trades"] + data["nb_positive_trades"])*100
-    data["total_trades"] = data["nb_negative_trades"] + data["nb_positive_trades"]
+    #data["win_rate"] = data["nb_positive_trades"]/(data["nb_negative_trades"] + data["nb_positive_trades"])*100
+    data["total_trades"] = results.count()
     return data
 
 
 def multiple_coin_strategy(historical_data: dict, list_of_coin: List[str], usdt: float,
                            stop_loss_pct: float, take_profit_pct: float,
                            taker_fee: float, maker_fee: float,
-                           signals: dict):
+                           signals: dict) -> pd.DataFrame:
+    """Function that runs backtest on mutiple coins
+
+    Args:
+        historical_data (dict): historical data of market
+        list_of_coin (List[str]): list of coin names 
+        usdt (float): starting amount of money in dollars
+        stop_loss_pct (float): pct of loss before stop loss
+        take_profit_pct (float): pct of gain before take profit
+        taker_fee (float): fee to apply when we buy coin
+        maker_fee (float): fee to apply when we sell coin
+        signals (dict): dict of signals (dataframes)
+
+    Returns:
+        pd.Dataframe: results of all wallets
+    """
     all_evaluations = {}
+    #-- split money in distinct wallets
     share_usdt = usdt / len(list_of_coin)
     for coin in list_of_coin:
         evaluation = run_backtest(

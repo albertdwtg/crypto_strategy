@@ -14,31 +14,39 @@ if config.EXECUTE_DASHBOARD:
     with open(config.DASHBOARD_OUTPUT, 'w', encoding='utf-8') as f:
         nbformat.write(nb, f)
 
-# historical_data = config.historical_data
-# rsi_params = {"window": 7}
-# signals = {}
-# signals["rsi"] = compute_signal("rsi", historical_data, **rsi_params)
+historical_data = config.historical_data
+rsi_params = {"window": 7}
+signals = {}
+signals["rsi"] = compute_signal("rsi", historical_data, **rsi_params)
 
-# historical_data, signals = train_test_split(historical_data, config.TRAIN_TEST_SPLIT, signals)
-# run_backtest(historical_data,
-#              "BNB",
-#              config.INITIAL_USDT,
-#              config.STOP_LOSS_PCT,
-#              config.TAKE_PROFIT_PCT,
-#              config.TAKER_FEE,
-#              config.MAKER_FEE,
-#              signals)
+if config.APPLY_TRAIN_TEST_SPLIT:
+    historical_data, signals = train_test_split(
+        historic_data = historical_data, 
+        signals = signals,
+        train_ratio = config.TRAIN_TEST_SPLIT
+        )
 
-# multiple_coin_strategy(
-#     historical_data,
-#     config.REQUIRED_LIST,
-#     config.INITIAL_USDT,
-#     config.STOP_LOSS_PCT,
-#     config.TAKE_PROFIT_PCT,
-#     config.TAKER_FEE,
-#     config.MAKER_FEE,
-#     signals
-# )
+run_backtest(
+    historical_data = historical_data,
+    coin_name = "BNB",
+    usdt = config.INITIAL_USDT,
+    stop_loss_pct = config.STOP_LOSS_PCT,
+    take_profit_pct = config.TAKE_PROFIT_PCT,
+    taker_fee = config.TAKER_FEE,
+    maker_fee = config.MAKER_FEE,
+    signals = signals
+    )
+
+multiple_coin_strategy(
+    historical_data = historical_data,
+    list_of_coin = config.REQUIRED_LIST,
+    usdt = config.INITIAL_USDT,
+    stop_loss_pct = config.STOP_LOSS_PCT,
+    take_profit_pct = config.TAKE_PROFIT_PCT,
+    taker_fee = config.TAKER_FEE,
+    maker_fee = config.MAKER_FEE,
+    signals = signals
+    )
 
 
 

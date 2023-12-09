@@ -578,4 +578,4 @@ def compute_signal(signal_name: str, historic_data: dict, **params) -> pd.DataFr
         signal = get_force_index(historic_data, **params)
     if signal_name.lower() == "money_flow_index":
         signal = get_money_flow_index(historic_data, **params)
-    return signal
+    return signal.shift(1)

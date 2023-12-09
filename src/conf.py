@@ -13,6 +13,7 @@ class Config:
     REQUIRED_LIST: list[str] = field(default_factory=lambda: ["BTC", "ETH", "BNB", "XRP", "SOL", "ADA", 
                                                               "LINK", "AVAX", "DOT", "LTC"])
     THRESHOLD_NULL_COLUMNS: float = 0.5
+    APPLY_TRAIN_TEST_SPLIT: bool = True
     TRAIN_TEST_SPLIT: float = 0.8
     
     #-- Backtest params
@@ -23,7 +24,7 @@ class Config:
     TAKE_PROFIT_PCT: float = 0.1
     
     #-- Dashboard
-    EXECUTE_DASHBOARD: bool = True
+    EXECUTE_DASHBOARD: bool = False
     DASHBOARD_OUTPUT: str = "executed_dashboard.ipynb"
     
     def __post_init__(self):
