@@ -8,7 +8,9 @@ import os
 
 from src import logging_config
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 def get_futures_symbols(status: str, coin_pair: str, required_list: List[str]) -> List[str]:
     """Function that returns a list of coins names
@@ -23,23 +25,24 @@ def get_futures_symbols(status: str, coin_pair: str, required_list: List[str]) -
     """
     base = 'https://fapi.binance.com'
     endpoint = f'{base}/fapi/v1/exchangeInfo'
-    
+
     params = {}
     result = requests.get(endpoint, params=params).json()
 
     usdt = []
     logger.info(f"Loading crypto symbols for status {status} and pair {coin_pair}")
-    
+
     for symb in result['symbols']:
         if symb['status'] == status:
             if symb['symbol'].endswith(coin_pair) and symb["baseAsset"] in required_list:
                 usdt.append(symb['symbol'])
-                
-    #-- we put BTC in the first place
-    btc_pair = "BTC" + coin_pair       
+
+    # -- we put BTC in the first place
+    btc_pair = "BTC" + coin_pair
     usdt.remove(btc_pair)
-    usdt.insert(0,btc_pair)
+    usdt.insert(0, btc_pair)
     return usdt
+
 
 def collect_historic_data(coins: List[str], start_date: str) -> dict:
     """Function that collects historical data of a list of coins
@@ -52,34 +55,35 @@ def collect_historic_data(coins: List[str], start_date: str) -> dict:
         dict: dict of dataframes containing data
     """
     logger.info(f"Staring loading since {start_date}")
-    historic={}
-    historic["High"]=pd.DataFrame()
-    historic["Volume"]=pd.DataFrame()
-    historic["Low"]=pd.DataFrame()
-    historic["Open"]=pd.DataFrame()
-    historic["Close"]=pd.DataFrame()
+    historic = {}
+    historic["High"] = pd.DataFrame()
+    historic["Volume"] = pd.DataFrame()
+    historic["Low"] = pd.DataFrame()
+    historic["Open"] = pd.DataFrame()
+    historic["Close"] = pd.DataFrame()
     for i in coins:
-        try: 
+        try:
             klinesT = Client().get_historical_klines(i, Client.KLINE_INTERVAL_1DAY, start_date,
-                                                    klines_type=HistoricalKlinesType.FUTURES)
+                                                     klines_type=HistoricalKlinesType.FUTURES)
             df = pd.DataFrame(klinesT, columns=[
-                            'timestamp', 'Open', 'High', 'Low', 'Close',
-                            'Volume', 'close_time', 'quote_av', 'trades',
-                            'tb_base_av', 'tb_quote_av', 'ignore'])
+                'timestamp', 'Open', 'High', 'Low', 'Close',
+                'Volume', 'close_time', 'quote_av', 'trades',
+                'tb_base_av', 'tb_quote_av', 'ignore'])
             df.index = df['timestamp'].apply(
-                            lambda x: datetime.datetime.fromtimestamp(x / 1000))
-            df=df[["Open","Low","Close","High","Volume"]]
-            cols=df.columns
-            name=i[:-4]
+                lambda x: datetime.datetime.fromtimestamp(x / 1000))
+            df = df[["Open", "Low", "Close", "High", "Volume"]]
+            cols = df.columns
+            name = i[:-4]
             df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
-            historic["Open"][name]=df["Open"]
-            historic["Close"][name]=df["Close"]
-            historic["Volume"][name]=df["Volume"]
-            historic["High"][name]=df["High"]
-            historic["Low"][name]=df["Low"]
+            historic["Open"][name] = df["Open"]
+            historic["Close"][name] = df["Close"]
+            historic["Volume"][name] = df["Volume"]
+            historic["High"][name] = df["High"]
+            historic["Low"][name] = df["Low"]
         except:
             continue
     return historic
+
 
 def save_df_to_parquet(df: pd.DataFrame, path: str, filename: str) -> str:
     """
@@ -94,10 +98,11 @@ def save_df_to_parquet(df: pd.DataFrame, path: str, filename: str) -> str:
     if not os.path.exists(path):
         os.makedirs(path)
     name = filename + ".parquet"
-    target_path = os.path.join(path, name)  
+    target_path = os.path.join(path, name)
     df.to_parquet(target_path)
     logger.info(f"Save data to parquet file in {target_path}")
     return name
+
 
 def collect_coins_data(start_date: str, coin_pair: str, coin_status: str, data_folder_name: str,
                        required_list: List[str]) -> dict:
@@ -115,12 +120,13 @@ def collect_coins_data(start_date: str, coin_pair: str, coin_status: str, data_f
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_folder_path = os.path.join(root_dir, data_folder_name)
     coins_names = get_futures_symbols(coin_status, coin_pair, required_list)
-    
+
     historic = collect_historic_data(coins_names, start_date)
     for key, value in historic.items():
         value.index = value.index.date
-        save_df_to_parquet(value,data_folder_path, key)
+        save_df_to_parquet(value, data_folder_path, key)
     return historic
+
 
 def remove_columns_with_null_values(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
     """
@@ -150,8 +156,8 @@ def remove_columns_with_null_values(df: pd.DataFrame, threshold: float = 0.5) ->
     return df
 
 
-def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str, 
-              data_folder_name: str, required_list: List[str], threshold: float = 0.5)->dict:
+def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str,
+              data_folder_name: str, required_list: List[str], threshold: float = 0.5) -> dict:
     """Function that reload files or just import existing files
 
     Args:

@@ -12,6 +12,7 @@ class Config:
     REQUIRED_LIST: list[str] = field(default_factory=lambda: ["BTC", "ETH", "BNB", "XRP", "SOL", "ADA", 
                                                               "LINK", "AVAX", "DOT", "LTC"])
     THRESHOLD_NULL_COLUMNS: float = 0.5
+    TRAIN_TEST_SPLIT: float = 0.8
     
     #-- Backtest params
     INITIAL_USDT: float = 1000.0

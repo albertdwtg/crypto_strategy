@@ -14,23 +14,28 @@ def get_returns_data(historic_data: dict) -> pd.DataFrame:
     returns = historic_data["Close"].pct_change()
     return returns
 
-def train_test_split(historic_data: dict, train_ratio: float) -> Tuple[dict,dict]:
-    """Function that applies a train test split on all dataframes of a dict of dataframes
+
+def train_test_split(historic_data: dict, train_ratio: float, signals: dict) -> Tuple[dict,dict]:
+    """Function that applies a train test split on all dataframes of two dicts of dataframes
 
     Args:
         historic_data (dict): dict of dataframes
         train_ratio (float): ratio of the training sample (between 0 and 1)
+        signals (dict): dict of signals dataframes
 
     Returns:
-        Tuple[dict,dict]: two dic of dataframes, one for training an the other for testing
+        Tuple[dict,dict]: two dict of dataframes, one for historic data and an another for signals
     """
     train_data = {}
-    test_data = {}
+    signals_train = {}
+    nb_rows = int(train_ratio * len(historic_data["Close"]))
+    index_limit = historic_data["Close"].index[nb_rows]
     for key in historic_data:
-        nb_rows = int(train_ratio * len(historic_data[key]))
-        train_data[key] = historic_data[key][:nb_rows]
-        #test_data[key] = historic_data[key][nb_rows:]
-    return train_data, historic_data
+        train_data[key] = historic_data[key].loc[:index_limit]
+    for key in signals:
+        signals_train[key] = signals[key].loc[:index_limit]
+    return train_data, signals_train
+
 
 #-- Momentum Indicators
 def get_rsi(df_records:dict, **params):
