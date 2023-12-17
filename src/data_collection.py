@@ -187,6 +187,5 @@ def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str,
             df = pd.read_parquet(complete_file_path)
             historic_data[file_name] = df
     for key in historic_data:
-        logger.info(f"Remove columns with more than {str(threshold)}% null values")
         historic_data[key] = remove_columns_with_null_values(historic_data[key], threshold)
     return historic_data

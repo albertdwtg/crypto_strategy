@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from src.data_collection import load_data
 from typing import List
+from src.signals_creation import compute_signal
 
 @dataclass
 class Config:
@@ -35,4 +36,22 @@ class Config:
                                          self.DATA_FOLDER,
                                          self.REQUIRED_LIST, 
                                          self.THRESHOLD_NULL_COLUMNS)
+        
+        signals_values = {
+            "rsi" : {"signal_name": "rsi", "params": {"window": 7}},
+            "ema" : {"signal_name": "ema", "params": {"window": 100}},
+            "ema_slow" : {"signal_name": "ema", "params": {"window": 100}},
+            "ema_fast" : {"signal_name": "ema", "params": {"window": 15}},
+            "macd_diff": {"signal_name": "macd_diff", "params": {"window_slow": 60,
+                                                                 "window_fast": 20,
+                                                                 "window_sign": 9}},
+            "stoch_rsi_k": {"signal_name": "stoch_rsi_k", "params": {"window": 50}},
+            "stoch_rsi_d": {"signal_name": "stoch_rsi_d", "params": {"window": 50}}
+        }
+        signals_computed = {}
+        for key, value in signals_values.items():
+            signals_computed[key] = compute_signal(value["signal_name"],
+                                                   self.historical_data,
+                                                   **value["params"])
+        self.SIGNALS = signals_computed
         

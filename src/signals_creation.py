@@ -320,6 +320,21 @@ def get_macd_signal(df_records: dict, **params):
     return signal_df
 
 
+def get_ema(df_records: dict, **params):
+    """
+    Function that creates the EMA dataframe
+    :param df_records: all dataframes containing historical_data
+
+    :param params: dict of parameters to create the signal
+    :return: dataframe containing the signal
+    """
+    signal_df = pd.DataFrame()
+    for coin_name in df_records["Open"].columns:
+        signal_df[coin_name] = ta.trend.ema_indicator(close=df_records['Close'][coin_name], **params)
+    
+    return signal_df
+
+
 def get_aroon_up(df_records: dict, **params):
     """
     Function that creates the aroon up dataframe
@@ -556,6 +571,8 @@ def compute_signal(signal_name: str, historic_data: dict, **params) -> pd.DataFr
         signal = get_macd_diff(historic_data, **params)
     if signal_name.lower() == "macd_signal":
         signal = get_macd_signal(historic_data, **params)
+    if signal_name.lower() == "ema":
+        signal = get_ema(historic_data, **params)
     if signal_name.lower() == "aroon_up":
         signal = get_aroon_up(historic_data, **params)
     if signal_name.lower() == "aroon_down":

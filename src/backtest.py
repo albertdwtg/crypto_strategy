@@ -11,21 +11,21 @@ class Reason(Enum):
     SELL_MARKET = "SELL_MARKET"
 
 
-def init_signals_values(signals: dict, coin_name: str) -> dict:
-    """Function that creates a dict of first values for signals
+# def init_signals_values(signals: dict, coin_name: str) -> dict:
+#     """Function that creates a dict of first values for signals
 
-    Args:
-        signals (dict): signals already computed
-        coin_name (str): name of the coin
+#     Args:
+#         signals (dict): signals already computed
+#         coin_name (str): name of the coin
 
-    Returns:
-        dict: current and previous values of a signal
-    """
-    signals_values = {}
-    for key, value in signals.items():
-        signals_values["current_" + key.lower()] = value.iloc[0][coin_name]
-        signals_values["previous_" + key.lower()] = value.iloc[0][coin_name]
-    return signals_values
+#     Returns:
+#         dict: current and previous values of a signal
+#     """
+#     signals_values = {}
+#     for key, value in signals.items():
+#         signals_values["current_" + key.lower()] = value.iloc[0][coin_name]
+#         signals_values["previous_" + key.lower()] = value.iloc[0][coin_name]
+#     return signals_values
 
 
 def run_backtest(historical_data: dict, coin_name: str, usdt: float,
@@ -47,7 +47,6 @@ def run_backtest(historical_data: dict, coin_name: str, usdt: float,
     Returns:
         dict: backtest evaluation
     """
-    rsi_signal = signals["rsi"]
     close_data = historical_data["Close"]
     close_data = close_data[close_data[coin_name].notnull()]
     wallet = usdt
@@ -57,14 +56,12 @@ def run_backtest(historical_data: dict, coin_name: str, usdt: float,
     coin = 0
     buy_ready = True
     all_operations = []
-    signals_value = init_signals_values(signals, coin_name)
 
     for index, row in close_data.iterrows():
-        signals_value["current_rsi"] = rsi_signal.loc[index, coin_name]
         current_price = row[coin_name]
         myrow = {}
 
-        operation, condition = match_condition(**signals_value)
+        operation, condition = match_condition(signals, index, coin_name, current_price)
         if operation == Operation.BUY and buy_ready == True and usdt > 0:
             take_profit = current_price + take_profit_pct * current_price
             stop_loss = current_price - stop_loss_pct * current_price
@@ -117,7 +114,6 @@ def run_backtest(historical_data: dict, coin_name: str, usdt: float,
                 myrow = write_operation(index, coin_name, Operation.SELL.value, Reason.SELL_MARKET.value, current_price,
                                         fee, usdt, coin, wallet, last_ath, condition.value)
                 all_operations.append(myrow)
-        signals_value["previous_rsi"] = signals_value["current_rsi"]
 
     dt = pd.DataFrame(all_operations)
     return backtest_evaluation(dt, close_data[coin_name])
@@ -205,9 +201,6 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series) -> di
     dt['resultat%'] = dt['wallet'].pct_change() * 100
     dt.loc[dt['position'] == 'Buy', 'resultat'] = None
     dt.loc[dt['position'] == 'Buy', 'resultat%'] = None
-    dt['tradeIs'] = ''
-    dt.loc[dt['resultat'] > 0, 'tradeIs'] = 'Good'
-    dt.loc[dt['resultat'] <= 0, 'tradeIs'] = 'Bad'
     initial_wallet = round(dt.wallet.iloc[0], 2)
     final_wallet = round(dt.wallet.iloc[-1], 2)
     ini_close = close_dataframe.iloc[0]
@@ -222,19 +215,19 @@ def backtest_evaluation(results: pd.DataFrame, close_dataframe: pd.Series) -> di
         "performance_algo": round(algo_pct, 2),
         "performance_buy_hold": round(hold_pct, 2),
         "algo_vs_hold": round(algo_vs_hold_pct, 2),
-        "nb_negative_trades": dt.groupby('tradeIs')['date'].nunique()['Bad'],
-        #"nb_positive_trades": dt.groupby('tradeIs')['date'].nunique()['Good'],
+        "nb_negative_trades": len(dt[dt['resultat'] < 0]),
+        "nb_positive_trades": len(dt[dt['resultat'] > 0]),
         "avg_pct_negative_trades": round(
-            dt.loc[dt['tradeIs'] == 'Bad', 'resultat%'].sum() / dt.loc[dt['tradeIs'] == 'Bad', 'resultat%'].count(), 2),
+            dt.loc[dt['resultat'] < 0, 'resultat%'].sum() / dt.loc[dt['resultat'] < 0, 'resultat%'].count(), 2),
         "avg_pct_positive_trades": round(
-            dt.loc[dt['tradeIs'] == 'Good', 'resultat%'].sum() / dt.loc[dt['tradeIs'] == 'Good', 'resultat%'].count(),
+            dt.loc[dt['resultat'] > 0, 'resultat%'].sum() / dt.loc[dt['resultat'] > 0, 'resultat%'].count(),
             2),
         "total_fee": round(dt['fee'].sum(), 2),
         "worst_drawback": 100 * round(dt['drawBack'].min(), 2),
         "detail": results
     }
-    #data["win_rate"] = data["nb_positive_trades"]/(data["nb_negative_trades"] + data["nb_positive_trades"])*100
-    data["total_trades"] = results.count()
+    data["win_rate"] = data["nb_positive_trades"]/(data["nb_negative_trades"] + data["nb_positive_trades"])*100
+    data["total_trades"] = len(results)
     return data
 
 
@@ -274,5 +267,15 @@ def multiple_coin_strategy(historical_data: dict, list_of_coin: List[str], usdt:
         all_evaluations[coin] = evaluation
 
     df_evaluations = pd.DataFrame.from_dict(all_evaluations, orient='index')
-    print("final wallet : ", df_evaluations["final_balance"].sum())
-    return df_evaluations
+    summary = {
+        "final_wallet" : df_evaluations["final_balance"].sum(),
+        "total_trades" : df_evaluations["total_trades"].sum(),
+        "nb_negative_trades": df_evaluations["nb_negative_trades"].sum(),
+        "nb_positive_trades": df_evaluations["nb_positive_trades"].sum(),
+        "total_fee": round(df_evaluations["total_fee"].sum(), 2)
+    }
+    win_rate = summary["nb_positive_trades"]/(summary["nb_negative_trades"] + summary["nb_positive_trades"])*100
+    summary["win_rate"] = round(win_rate, 2)
+    final_wallet = summary["final_wallet"]
+    summary["performance_algo"] = round(((final_wallet - usdt) / usdt) * 100, 2)
+    return df_evaluations, summary
