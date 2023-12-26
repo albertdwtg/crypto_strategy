@@ -46,7 +46,8 @@ class Config:
                                                                  "window_fast": 20,
                                                                  "window_sign": 9}},
             "stoch_rsi_k": {"signal_name": "stoch_rsi_k", "params": {"window": 50}},
-            "stoch_rsi_d": {"signal_name": "stoch_rsi_d", "params": {"window": 50}}
+            "stoch_rsi_d": {"signal_name": "stoch_rsi_d", "params": {"window": 50}},
+            "williams_r" : {"signal_name" : "williams_r", "params": {"lbp": 7}}
         }
         signals_computed = {}
         for key, value in signals_values.items():

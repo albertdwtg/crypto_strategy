@@ -13,6 +13,7 @@ class Condition(Enum):
     MACD = "MACD"
     STOCH_RSI = "STOCH_RSI"
     CROSS_EMA = "CROSS_EMA"
+    WILLIAMS_R = "WILLIAMS_R"
 
 
 def condition_rsi(signals: dict, index, coin_name: str, current_price: float):
@@ -60,6 +61,22 @@ def condition_stoch_rsi(signals: dict, index, coin_name: str, current_price: flo
             return Operation.BUY
     else:
         return None
+    
+def condition_williams_r(signals: dict, index, coin_name: str, current_price: float):
+    signal_williams_r = signals["williams_r"]
+    current_williams_r = signal_williams_r.loc[index, coin_name]
+    signal_ema = signals["ema"]
+    current_ema_value = signal_ema.loc[index, coin_name]
+    previous_index = get_previous_index(signal_williams_r, index)
+    previous_williams_r = signal_williams_r.loc[previous_index, coin_name]
+    
+    if current_williams_r < -20 and previous_williams_r > -20:
+            return Operation.SELL
+    # if current_williams_r > -80 \
+    #     and previous_williams_r < -80:
+    #         return Operation.BUY
+    else:
+        return None
 
 def condition_macd(signals: dict, index, coin_name: str, current_price: float):
     signal_macd = signals["macd_diff"]
@@ -77,25 +94,29 @@ def condition_macd(signals: dict, index, coin_name: str, current_price: float):
     and current_rsi_value < 30:
         
         return Operation.BUY
-    elif current_macd_value < previous_macd_value and current_macd_value > 10:
-        return Operation.SELL
+    # elif current_macd_value < previous_macd_value and current_macd_value > 10:
+    #     return Operation.SELL
     else:
         return None
 
 def match_condition(signals: dict, index, coin_name: str, current_price: float):
+    #print(locals())
     
-    if condition_rsi(signals, index, coin_name, current_price) is not None:
-        return condition_rsi(signals, index, coin_name, current_price), Condition.RSI
     
-    if condition_stoch_rsi(signals, index, coin_name, current_price) is not None:
-        return condition_stoch_rsi(signals, index, coin_name, current_price), Condition.STOCH_RSI
+    if condition_stoch_rsi(**locals()) is not None:
+        return condition_stoch_rsi(**locals()), Condition.STOCH_RSI
     
-    if condition_macd(signals, index, coin_name, current_price) is not None:
-        return condition_macd(signals, index, coin_name, current_price), Condition.MACD
+    if condition_rsi(**locals()) is not None:
+        return condition_rsi(**locals()), Condition.RSI
+    
+    if condition_macd(**locals()) is not None:
+        return condition_macd(**locals()), Condition.MACD
 
-    if condition_cross_ema(signals, index, coin_name, current_price) is not None:
-        return condition_cross_ema(signals, index, coin_name, current_price), Condition.CROSS_EMA
+    if condition_cross_ema(**locals()) is not None:
+        return condition_cross_ema(**locals()), Condition.CROSS_EMA
     
+    if condition_williams_r(**locals()) is not None:
+        return condition_williams_r(**locals()), Condition.WILLIAMS_R
     else:
         return None, None
    

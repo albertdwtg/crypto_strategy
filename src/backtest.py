@@ -268,7 +268,7 @@ def multiple_coin_strategy(historical_data: dict, list_of_coin: List[str], usdt:
 
     df_evaluations = pd.DataFrame.from_dict(all_evaluations, orient='index')
     summary = {
-        "final_wallet" : df_evaluations["final_balance"].sum(),
+        "final_wallet" : round(df_evaluations["final_balance"].sum(), 2),
         "total_trades" : df_evaluations["total_trades"].sum(),
         "nb_negative_trades": df_evaluations["nb_negative_trades"].sum(),
         "nb_positive_trades": df_evaluations["nb_positive_trades"].sum(),

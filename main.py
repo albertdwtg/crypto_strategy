@@ -10,7 +10,7 @@ config = Config()
 def main_function():
     historical_data = config.historical_data
     signals = config.SIGNALS
-    #print(signals["stoch_rsi_k"])
+    #print(signals["williams_r"])
 
     if config.APPLY_TRAIN_TEST_SPLIT:
         historical_data, signals = train_test_split(
