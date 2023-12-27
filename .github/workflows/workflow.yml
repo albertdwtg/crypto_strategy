@@ -28,16 +28,18 @@ jobs:
         id: vulture
         with:
           vulture-args: src/ --min-confidence 100
-      - name: Run pytest
-        uses: pavelzw/pytest-action@v2
-        #working-directory: 'tests/'
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          verbose: true
-          emoji: true
-          job-summary: true
-          custom-arguments: '-q'
-          click-to-expand: true
-          report-title: 'Test Report'
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Test with pytest
+        run: |
+          pip install pytest pytest-cov
+          pytest tests/ 
 
   terraform:
     name: 'Terraform'
