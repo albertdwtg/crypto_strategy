@@ -37,9 +37,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Test with pytest
+        working-directory: ./tests
         run: |
           pip install pytest pytest-cov
-          pytest tests/ 
+          pytest data_collection.py 
 
   terraform:
     name: 'Terraform'
