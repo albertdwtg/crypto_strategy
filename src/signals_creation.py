@@ -2,6 +2,7 @@ import ta
 import pandas as pd
 from typing import Tuple
 
+
 def get_returns_data(historic_data: dict) -> pd.DataFrame:
     """Function that creates a returns matrix from historic data
 
@@ -15,7 +16,9 @@ def get_returns_data(historic_data: dict) -> pd.DataFrame:
     return returns
 
 
-def train_test_split(historic_data: dict, train_ratio: float, signals: dict) -> Tuple[dict,dict]:
+def train_test_split(
+    historic_data: dict, train_ratio: float, signals: dict
+) -> Tuple[dict, dict]:
     """Function that applies a train test split on all dataframes of two dicts of dataframes
 
     Args:
@@ -37,8 +40,8 @@ def train_test_split(historic_data: dict, train_ratio: float, signals: dict) -> 
     return train_data, signals_train
 
 
-#-- Momentum Indicators
-def get_rsi(df_records:dict, **params):
+# -- Momentum Indicators
+def get_rsi(df_records: dict, **params):
     """
     Function that creates the rsi dataframe
     :param df_records: all dataframes containing historical_data
@@ -46,13 +49,16 @@ def get_rsi(df_records:dict, **params):
     :param params: dict of parameters to create the signal
     :return: dataframe containing the signal
     """
-    signal_df=pd.DataFrame()
+    signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.rsi(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.rsi(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
-def get_stoch_rsi(df_records:dict, **params):
+
+def get_stoch_rsi(df_records: dict, **params):
     """
     Function that creates the stochastic rsi dataframe
     :param df_records: all dataframes containing historical_data
@@ -62,8 +68,10 @@ def get_stoch_rsi(df_records:dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.stochrsi(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.stochrsi(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -77,8 +85,10 @@ def get_stoch_rsi_d(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.stochrsi_d(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.stochrsi_d(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -92,9 +102,12 @@ def get_stoch_rsi_k(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.stochrsi_k(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.stochrsi_k(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
+
 
 def get_tsi(df_records: dict, **params):
     """
@@ -106,9 +119,12 @@ def get_tsi(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.tsi(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.tsi(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
+
 
 def get_aws_oscillator(df_records: dict, **params):
     """
@@ -120,10 +136,12 @@ def get_aws_oscillator(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.awesome_oscillator(high=df_records['High'][coin_name],
-                                                                low=df_records['Low'][coin_name],
-                                                                **params)
-    
+        signal_df[coin_name] = ta.momentum.awesome_oscillator(
+            high=df_records["High"][coin_name],
+            low=df_records["Low"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -137,8 +155,10 @@ def get_kama(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.kama(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.kama(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -152,11 +172,13 @@ def get_stoch(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.stoch(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.momentum.stoch(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -170,11 +192,13 @@ def get_stoch_signal(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.stoch_signal(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.momentum.stoch_signal(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -188,11 +212,13 @@ def get_williams_r(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.williams_r(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.momentum.williams_r(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -206,8 +232,10 @@ def get_ppo(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.ppo(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.ppo(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -221,8 +249,10 @@ def get_ppo_signal(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.ppo_signal(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.ppo_signal(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -236,8 +266,10 @@ def get_pvo(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.pvo(volume=df_records['Volume'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.pvo(
+            volume=df_records["Volume"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -251,8 +283,10 @@ def get_pvo_signal(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.pvo_signal(volume=df_records['Volume'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.pvo_signal(
+            volume=df_records["Volume"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -266,12 +300,14 @@ def get_pvo_hist(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.pvo_hist(volume=df_records['Volume'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.pvo_hist(
+            volume=df_records["Volume"][coin_name], **params
+        )
+
     return signal_df
 
 
-def get_roc(df_records:dict, **params):
+def get_roc(df_records: dict, **params):
     """
     Function that creates the roc dataframe
     :param df_records: all dataframes containing historical_data
@@ -279,13 +315,16 @@ def get_roc(df_records:dict, **params):
     :param params: dict of parameters to create the signal
     :return: dataframe containing the signal
     """
-    signal_df=pd.DataFrame()
+    signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.momentum.roc(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.momentum.roc(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
-#-- Trend Indicators
+
+# -- Trend Indicators
 
 
 def get_macd_diff(df_records: dict, **params):
@@ -296,11 +335,11 @@ def get_macd_diff(df_records: dict, **params):
     :param params: dict of parameters to create the signal
     :return: dataframe containing the signal
     """
-    signal_df=pd.DataFrame()
+    signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        MACD = ta.trend.MACD(close=df_records['Close'][coin_name], **params)
+        MACD = ta.trend.MACD(close=df_records["Close"][coin_name], **params)
         signal_df[coin_name] = MACD.macd_diff()
-    
+
     return signal_df
 
 
@@ -312,11 +351,11 @@ def get_macd_signal(df_records: dict, **params):
     :param params: dict of parameters to create the signal
     :return: dataframe containing the signal
     """
-    signal_df=pd.DataFrame()
+    signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        MACD = ta.trend.MACD(close=df_records['Close'][coin_name], **params)
+        MACD = ta.trend.MACD(close=df_records["Close"][coin_name], **params)
         signal_df[coin_name] = MACD.macd_signal()
-    
+
     return signal_df
 
 
@@ -330,8 +369,10 @@ def get_ema(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.ema_indicator(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.trend.ema_indicator(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -345,8 +386,10 @@ def get_aroon_up(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.aroon_up(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.trend.aroon_up(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -360,8 +403,10 @@ def get_aroon_down(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.aroon_down(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.trend.aroon_down(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -375,11 +420,13 @@ def get_cci(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.cci(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.trend.cci(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -393,8 +440,10 @@ def get_dpo(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.dpo(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.trend.dpo(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -408,8 +457,10 @@ def get_trix(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.trix(close=df_records['Close'][coin_name], **params)
-    
+        signal_df[coin_name] = ta.trend.trix(
+            close=df_records["Close"][coin_name], **params
+        )
+
     return signal_df
 
 
@@ -423,14 +474,16 @@ def get_mass_index(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.trend.mass_index(low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.trend.mass_index(
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
-#-- Volatility Indicators
+# -- Volatility Indicators
 
 
 def get_bol_wband(df_records: dict, **params):
@@ -443,13 +496,16 @@ def get_bol_wband(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        BOL_BAND = ta.volatility.BollingerBands(close=df_records['Close'][coin_name], **params)
+        BOL_BAND = ta.volatility.BollingerBands(
+            close=df_records["Close"][coin_name], **params
+        )
         signal_df[coin_name] = BOL_BAND.bollinger_wband()
-    
+
     return signal_df
 
 
-#-- Volume Indicators
+# -- Volume Indicators
+
 
 def get_chaikin_money_flow(df_records: dict, **params):
     """
@@ -461,12 +517,14 @@ def get_chaikin_money_flow(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.volume.chaikin_money_flow(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 volume=df_records['Volume'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.volume.chaikin_money_flow(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            volume=df_records["Volume"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -480,11 +538,13 @@ def get_ease_of_movement(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.volume.ease_of_movement(low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 volume=df_records['Volume'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.volume.ease_of_movement(
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            volume=df_records["Volume"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -498,10 +558,12 @@ def get_force_index(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.volume.force_index(close=df_records['Close'][coin_name],
-                                                 volume=df_records['Volume'][coin_name],
-                                                 **params)
-    
+        signal_df[coin_name] = ta.volume.force_index(
+            close=df_records["Close"][coin_name],
+            volume=df_records["Volume"][coin_name],
+            **params
+        )
+
     return signal_df
 
 
@@ -515,14 +577,15 @@ def get_money_flow_index(df_records: dict, **params):
     """
     signal_df = pd.DataFrame()
     for coin_name in df_records["Open"].columns:
-        signal_df[coin_name] = ta.volume.money_flow_index(close=df_records['Close'][coin_name],
-                                                 low=df_records['Low'][coin_name],
-                                                 high=df_records['High'][coin_name],
-                                                 volume=df_records['Volume'][coin_name],
-                                                 **params)
-    
-    return signal_df
+        signal_df[coin_name] = ta.volume.money_flow_index(
+            close=df_records["Close"][coin_name],
+            low=df_records["Low"][coin_name],
+            high=df_records["High"][coin_name],
+            volume=df_records["Volume"][coin_name],
+            **params
+        )
 
+    return signal_df
 
 
 def compute_signal(signal_name: str, historic_data: dict, **params) -> pd.DataFrame:
@@ -533,7 +596,7 @@ def compute_signal(signal_name: str, historic_data: dict, **params) -> pd.DataFr
     :param params: dict of parameters to create the signal
     :return: dataframe of the signal
     """
-    
+
     signal = pd.DataFrame()
     if signal_name.lower() == "rsi":
         signal = get_rsi(historic_data, **params)

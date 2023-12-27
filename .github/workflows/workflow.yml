@@ -1,4 +1,4 @@
-name: 'Terraform'
+name: 'CI/CD'
 
 on:
   push:
@@ -8,9 +8,27 @@ permissions:
   contents: read
 
 jobs:
+  python:
+    name: 'Python'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1
+        id: action_black
+        with:
+          black_args: ". --check --diff"
+      - name: Scavenge
+        uses: anaynayak/python-vulture-action@v1.0
+        id: vulture
+        with:
+          vulture-args: src/ --min-confidence 100
+
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    needs: ['python']
     environment: production
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -28,14 +46,6 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
-    - name: Setup terraform variables
-      id: vars
-      run: |-
-        cat > pipeline.auto.tfvars <<EOF
-        region="${{ vars.GCP_REGION }}" 
-        project_id="${{ vars.GCP_PROJECT }}"
-        resource_prefix="${{ vars.TF_RESOURCE_PREFIX}}"
-        EOF
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
@@ -44,9 +54,17 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }} 
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    # - name: Terraform Format
-    #   run: terraform fmt -check
+    - name: Terraform Format
+      run: terraform fmt -check
 
+    - name: Setup terraform variables
+      id: vars
+      run: |-
+        cat > pipeline.auto.tfvars <<EOF
+        region="${{ vars.GCP_REGION }}" 
+        project_id="${{ vars.GCP_PROJECT }}"
+        resource_prefix="${{ vars.TF_RESOURCE_PREFIX}}"
+        EOF
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false

@@ -12,7 +12,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_futures_symbols(status: str, coin_pair: str, required_list: List[str]) -> List[str]:
+def get_futures_symbols(
+    status: str, coin_pair: str, required_list: List[str]
+) -> List[str]:
     """Function that returns a list of coins names
 
     Args:
@@ -23,8 +25,8 @@ def get_futures_symbols(status: str, coin_pair: str, required_list: List[str]) -
     Returns:
         List[str]: list of coins names
     """
-    base = 'https://fapi.binance.com'
-    endpoint = f'{base}/fapi/v1/exchangeInfo'
+    base = "https://fapi.binance.com"
+    endpoint = f"{base}/fapi/v1/exchangeInfo"
 
     params = {}
     result = requests.get(endpoint, params=params).json()
@@ -32,10 +34,13 @@ def get_futures_symbols(status: str, coin_pair: str, required_list: List[str]) -
     usdt = []
     logger.info(f"Loading crypto symbols for status {status} and pair {coin_pair}")
 
-    for symb in result['symbols']:
-        if symb['status'] == status:
-            if symb['symbol'].endswith(coin_pair) and symb["baseAsset"] in required_list:
-                usdt.append(symb['symbol'])
+    for symb in result["symbols"]:
+        if symb["status"] == status:
+            if (
+                symb["symbol"].endswith(coin_pair)
+                and symb["baseAsset"] in required_list
+            ):
+                usdt.append(symb["symbol"])
 
     # -- we put BTC in the first place
     btc_pair = "BTC" + coin_pair
@@ -50,7 +55,7 @@ def collect_historic_data(coins: List[str], start_date: str) -> dict:
     Args:
         coins (List[str]): List of coins names. ex: BTCUSDT
         start_date(str): date where to start the historic
-        
+
     Returns:
         dict: dict of dataframes containing data
     """
@@ -63,18 +68,36 @@ def collect_historic_data(coins: List[str], start_date: str) -> dict:
     historic["Close"] = pd.DataFrame()
     for i in coins:
         try:
-            klinesT = Client().get_historical_klines(i, Client.KLINE_INTERVAL_1DAY, start_date,
-                                                     klines_type=HistoricalKlinesType.FUTURES)
-            df = pd.DataFrame(klinesT, columns=[
-                'timestamp', 'Open', 'High', 'Low', 'Close',
-                'Volume', 'close_time', 'quote_av', 'trades',
-                'tb_base_av', 'tb_quote_av', 'ignore'])
-            df.index = df['timestamp'].apply(
-                lambda x: datetime.datetime.fromtimestamp(x / 1000))
+            klinesT = Client().get_historical_klines(
+                i,
+                Client.KLINE_INTERVAL_1DAY,
+                start_date,
+                klines_type=HistoricalKlinesType.FUTURES,
+            )
+            df = pd.DataFrame(
+                klinesT,
+                columns=[
+                    "timestamp",
+                    "Open",
+                    "High",
+                    "Low",
+                    "Close",
+                    "Volume",
+                    "close_time",
+                    "quote_av",
+                    "trades",
+                    "tb_base_av",
+                    "tb_quote_av",
+                    "ignore",
+                ],
+            )
+            df.index = df["timestamp"].apply(
+                lambda x: datetime.datetime.fromtimestamp(x / 1000)
+            )
             df = df[["Open", "Low", "Close", "High", "Volume"]]
             cols = df.columns
             name = i[:-4]
-            df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
+            df[cols] = df[cols].apply(pd.to_numeric, errors="coerce")
             historic["Open"][name] = df["Open"]
             historic["Close"][name] = df["Close"]
             historic["Volume"][name] = df["Volume"]
@@ -104,8 +127,13 @@ def save_df_to_parquet(df: pd.DataFrame, path: str, filename: str) -> str:
     return name
 
 
-def collect_coins_data(start_date: str, coin_pair: str, coin_status: str, data_folder_name: str,
-                       required_list: List[str]) -> dict:
+def collect_coins_data(
+    start_date: str,
+    coin_pair: str,
+    coin_status: str,
+    data_folder_name: str,
+    required_list: List[str],
+) -> dict:
     """Function that collects historical data of coins and save it to parquet
 
     Args:
@@ -128,7 +156,9 @@ def collect_coins_data(start_date: str, coin_pair: str, coin_status: str, data_f
     return historic
 
 
-def remove_columns_with_null_values(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
+def remove_columns_with_null_values(
+    df: pd.DataFrame, threshold: float = 0.5
+) -> pd.DataFrame:
     """
     Removes columns from a DataFrame that contain more than the threshold percentage of null values.
 
@@ -156,8 +186,15 @@ def remove_columns_with_null_values(df: pd.DataFrame, threshold: float = 0.5) ->
     return df
 
 
-def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str,
-              data_folder_name: str, required_list: List[str], threshold: float = 0.5) -> dict:
+def load_data(
+    reload: bool,
+    start_date: str,
+    coin_pair: str,
+    coin_status: str,
+    data_folder_name: str,
+    required_list: List[str],
+    threshold: float = 0.5,
+) -> dict:
     """Function that reload files or just import existing files
 
     Args:
@@ -174,7 +211,9 @@ def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str,
     historic_data = {}
     if reload:
         logger.info("Reloading is starting")
-        historic_data = collect_coins_data(start_date, coin_pair, coin_status, data_folder_name, required_list)
+        historic_data = collect_coins_data(
+            start_date, coin_pair, coin_status, data_folder_name, required_list
+        )
         logger.info("Realoading is done")
     else:
         logger.info("Realoading data is not required")
@@ -183,9 +222,11 @@ def load_data(reload: bool, start_date: str, coin_pair: str, coin_status: str,
         files_dir = [f for f in os.listdir(data_folder_path) if f.endswith(".parquet")]
         for file in files_dir:
             complete_file_path = os.path.join(data_folder_path, file)
-            file_name = file.split('.')[0]
+            file_name = file.split(".")[0]
             df = pd.read_parquet(complete_file_path)
             historic_data[file_name] = df
     for key in historic_data:
-        historic_data[key] = remove_columns_with_null_values(historic_data[key], threshold)
+        historic_data[key] = remove_columns_with_null_values(
+            historic_data[key], threshold
+        )
     return historic_data
