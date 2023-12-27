@@ -3,8 +3,6 @@ name: 'Terraform'
 on:
   push:
     branches: ["develop", "staging", "main"]
-  # pull_request:
-  #   branches: ["develop"]
 
 permissions:
   contents: read
@@ -36,6 +34,7 @@ jobs:
         cat > pipeline.auto.tfvars <<EOF
         region="${{ vars.GCP_REGION }}" 
         project_id="${{ vars.GCP_PROJECT }}"
+        resource_prefix="${{ vars.TF_RESOURCE_PREFIX}}"
         EOF
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
