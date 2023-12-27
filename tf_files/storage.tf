@@ -5,8 +5,8 @@ resource "google_storage_bucket" "bucket_historical_data" {
   force_destroy               = false
   uniform_bucket_level_access = true
   location                    = var.region
-  labels = { 
-    environment = "${var.environment}"
+  labels = {
+    environment  = "${var.environment}"
     project_name = "${var.resource_prefix}"
   }
 }

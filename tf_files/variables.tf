@@ -16,5 +16,5 @@ variable "resource_prefix" {
 variable "environment" {
   type        = string
   description = "name of the current environment"
-  default = "prod"
+  default     = "prod"
 }
