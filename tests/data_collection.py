@@ -4,17 +4,25 @@ import sys
 
 sys.path.append("./")
 from src.data_collection import get_futures_symbols, collect_historic_data
-from src.conf import Config
-
-config = Config()
-
+REQUIRED_LIST = [
+            "BTC",
+            "ETH",
+            "BNB",
+            "XRP",
+            "SOL",
+            "ADA",
+            "LINK",
+            "AVAX",
+            "DOT",
+            "LTC",
+        ]
 
 def test_get_symbols():
     nb_coins = 3
     list_returned = get_futures_symbols(
         status="TRADING",
         coin_pair="USDT",
-        required_list=config.REQUIRED_LIST[:nb_coins],
+        required_list=REQUIRED_LIST[:nb_coins],
     )
     assert isinstance(list_returned, list)
     assert len(list_returned) == nb_coins
@@ -26,7 +34,7 @@ def test_collect_historic_data():
     list_returned = get_futures_symbols(
         status="TRADING",
         coin_pair="USDT",
-        required_list=config.REQUIRED_LIST[:nb_coins],
+        required_list=REQUIRED_LIST[:nb_coins],
     )
     obj_returned = collect_historic_data(list_returned, start_date)
     assert len(obj_returned) == 5
