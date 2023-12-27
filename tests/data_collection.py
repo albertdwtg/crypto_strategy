@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 sys.path.append("./")
-from src.data_collection import *
+from src.data_collection import get_futures_symbols, collect_historic_data
 from src.conf import Config
 
 config = Config()
