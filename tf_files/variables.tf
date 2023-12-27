@@ -12,3 +12,9 @@ variable "resource_prefix" {
   type        = string
   description = "Prefix to add to each ressource of this project"
 }
+
+variable "environment" {
+  type        = string
+  description = "name of the current environment"
+  default = "prod"
+}
