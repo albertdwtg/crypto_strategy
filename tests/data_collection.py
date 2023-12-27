@@ -4,18 +4,20 @@ import sys
 
 sys.path.append("./")
 from src.data_collection import get_futures_symbols, collect_historic_data
+
 REQUIRED_LIST = [
-            "BTC",
-            "ETH",
-            "BNB",
-            "XRP",
-            "SOL",
-            "ADA",
-            "LINK",
-            "AVAX",
-            "DOT",
-            "LTC",
-        ]
+    "BTC",
+    "ETH",
+    "BNB",
+    "XRP",
+    "SOL",
+    "ADA",
+    "LINK",
+    "AVAX",
+    "DOT",
+    "LTC",
+]
+
 
 def test_get_symbols():
     nb_coins = 3
