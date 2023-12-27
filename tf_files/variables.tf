@@ -7,3 +7,8 @@ variable "region" {
     type = string
     description = "Region google project"
 }
+
+variable "resource_prefix" {
+    type = string
+    description = "Prefix to add to each ressource of this project"
+}
