@@ -18,12 +18,12 @@ jobs:
         uses: rickstaa/action-black@v1
         id: action_black
         with:
-          black_args: "src/ --check --diff"
+          black_args: ". --check --diff"
       - name: Scavenge
         uses: anaynayak/python-vulture-action@v1.0
         id: vulture
         with:
-          vulture-args: example --min-confidence 100
+          vulture-args: src/ --min-confidence 100
 
   terraform:
     name: 'Terraform'
@@ -45,14 +45,6 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
-    - name: Setup terraform variables
-      id: vars
-      run: |-
-        cat > pipeline.auto.tfvars <<EOF
-        region="${{ vars.GCP_REGION }}" 
-        project_id="${{ vars.GCP_PROJECT }}"
-        resource_prefix="${{ vars.TF_RESOURCE_PREFIX}}"
-        EOF
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
@@ -64,6 +56,14 @@ jobs:
     - name: Terraform Format
       run: terraform fmt -check
 
+    - name: Setup terraform variables
+      id: vars
+      run: |-
+        cat > pipeline.auto.tfvars <<EOF
+        region="${{ vars.GCP_REGION }}" 
+        project_id="${{ vars.GCP_PROJECT }}"
+        resource_prefix="${{ vars.TF_RESOURCE_PREFIX}}"
+        EOF
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false
